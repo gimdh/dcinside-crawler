@@ -19,11 +19,11 @@ def request(url):
     url_get = requests.get(url, headers=header)
     return url_get
 
-def gall_check(gall):
-    recept = request("http://gall.dcinside.com/board/lists/?id=%s" %gall)
+def gall_check(minor_string, gall):
+    recept = request("http://gall.dcinside.com/%sboard/lists/?id=%s" %(minor_string, gall))
     soup = BeautifulSoup(recept.text, "html.parser")
     meta_data = soup.find_all("meta", {"name": "title"})
-    comp = re.findall("\"(.*갤러리)", str(meta_data))
+    comp = re.findall("\"(.+갤러리)", str(meta_data))
     if comp == []:
         return None
     gall_name = comp[0]
@@ -31,9 +31,21 @@ def gall_check(gall):
 
 
 def main():
+	
+    is_minor = input("마이너 갤러리입니까? (y/n): ")
+
+    if is_minor == 'y':
+        minor_string = "mgallery/"
+    elif is_minor == 'n': 
+        minor_string = ""
+    
+    else:
+        print("y나 n으로 입력부탁")
+        main()
+    
     gall = input("갤러리 id?(ex:mlp): ")
-    if gall_check(gall):
-        print(gall_check(gall))
+    if gall_check(minor_string, gall):
+        print(gall_check(minor_string, gall))
     else:
         print("id 잘못 입력한듯")
         main()
@@ -43,7 +55,7 @@ def main():
 
     for page in range(init_page, final_page + 1):
         print("\rWorking page={}/{}".format(page, final_page), end="")
-        recept = request("http://gall.dcinside.com/board/lists/?id=%s&page=%d" %(gall, page))
+        recept = request("http://gall.dcinside.com/%sboard/lists/?id=%s&page=%d" %(minor_string, gall, page))
         soup = BeautifulSoup(recept.text, "html.parser")
         nick_list = soup.find_all('td', {'class': "gall_writer ub-writer"})
 
@@ -142,7 +154,7 @@ def edit_nick():
 
 
 if __name__ == "__main__":
-    print("갤창랭킹 made by hanel2527, mlp갤")
+    print("갤창랭킹 made by hanel2527, mlp갤 \n\n 마갤 지원 패치 by Prince,  \n(**데자와는 갓음료입니다**)\n\n")
     if input("갤창랭킹/편집(g/e): ") == "g":
         main()
     edit_nick() #닉변처리
